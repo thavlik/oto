@@ -127,6 +127,9 @@ func rustType(s string) template.HTML {
 			valueType := rustType(s[5+len(keyType):])
 			//return template.HTML("Map<String, Value>")
 			return template.HTML(fmt.Sprintf("std::collections::HashMap<%s, %s>", keyType, valueType))
+		} else if strings.HasPrefix(s, "*") {
+			// Remove indirection
+			return rustType(s[1:])
 		}
 		return template.HTML(s)
 	}
