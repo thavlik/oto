@@ -1,6 +1,5 @@
 use crate::types;
 use actix_web;
-use colored::*;
 
 fn error_json<T: std::string::ToString>(e: T) -> String {
     format!("{{\"error\":\"{}\"}}", e.to_string())
