@@ -96,7 +96,7 @@ pub mod test {
             #[async_trait]
             impl<T> types::<%= embedded.Name %> for Client<T> where T: types::<%= service.Name %> + std::clone::Clone {
                 <%= for (method) in embedded.Unique { %>
-                    async fn <%= underscore(method.Name) %>(&self, req: types::<%= method.InputObject.TypeName %>) -> Result<types::<%= method.OutputObject.TypeName %>, String> {
+                    async fn <%= underscore(method.Name) %>(&self, req: types::<%= method.InputObject.TypeName %>) -> Result<types::<%= method.OutputObject.TypeName %>> {
                         let endpoint = "/oto/<%= service.Name %>.<%= method.Name %>";
                         let body = types::<%= method.InputObject.TypeName %>::new();
                         let req = test::TestRequest::post()
@@ -113,7 +113,7 @@ pub mod test {
             #[async_trait]
             impl<T> types::<%= service.Name %> for Client<T> where T: types::<%= service.Name %> + std::clone::Clone {
                 <%= for (method) in service.Unique { %>
-                    async fn <%= underscore(method.Name) %>(&self, req: types::<%= method.InputObject.TypeName %>) -> Result<types::<%= method.OutputObject.TypeName %>, String> {
+                    async fn <%= underscore(method.Name) %>(&self, req: types::<%= method.InputObject.TypeName %>) -> Result<types::<%= method.OutputObject.TypeName %>> {
                         Err(String::new())
                     }
                 <% } %>
