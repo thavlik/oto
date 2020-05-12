@@ -2,7 +2,7 @@
 use serde_json::{Value, Map};
 use serde::{Serialize, Deserialize};
 use async_trait::async_trait;
-
+use anyhow::{Result, Error};
 
 <%= for (service) in def.Services { %>
 
@@ -16,7 +16,7 @@ pub trait <%= service.Name %> : std::marker::Send + std::marker::Sync
 <% } %>
 {
     <%= for (method) in service.Unique { %>
-	async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>, String>;<% } %>
+	async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>>;<% } %>
 }
 <% } %>
 
@@ -127,9 +127,9 @@ impl Mock<%= service.Name %> {
     #[async_trait]
     impl <%= embedded.Name %> for Mock<%= service.Name %> {
         <%= for (method) in embedded.Unique { %>
-            async fn <%= underscore(method.Name) %>(&self, _ :<%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>, String> {
+            async fn <%= underscore(method.Name) %>(&self, _ :<%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
                 match self.error {
-                    Some(err) => Err(String::from(err)),
+                    Some(err) => Err(Error::msg(err)),
                     None => Ok(Default::default()),
                 }
             }
@@ -140,9 +140,9 @@ impl Mock<%= service.Name %> {
 #[async_trait]
 impl <%= service.Name %> for Mock<%= service.Name %> {
     <%= for (method) in service.Unique { %>
-        async fn <%= underscore(method.Name) %>(&self, _ :<%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>, String> {
+        async fn <%= underscore(method.Name) %>(&self, _ :<%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
             match self.error {
-                Some(err) => Err(String::from(err)),
+                Some(err) => Err(Error::msg(err)),
                 None => Ok(Default::default()),
             }
         }

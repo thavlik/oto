@@ -1,5 +1,6 @@
 use crate::types;
 use actix_web;
+use anyhow::Result;
 
 fn error_json<T: std::string::ToString>(e: T) -> String {
     format!("{{\"error\":\"{}\"}}", e.to_string())
@@ -26,7 +27,7 @@ pub mod <%= underscore(service.Name) %> {
     }
 
     // address: e.g. "127.0.0.1:8080"
-    pub async fn main<T>(svc: T, address: &str) -> std::io::Result<()> where T: types::<%= service.Name %> + std::clone::Clone + 'static {
+    pub async fn main<T>(svc: T, address: &str) -> Result<()> where T: types::<%= service.Name %> + std::clone::Clone + 'static {
         actix_web::HttpServer::new(move || actix_web::App::new()
             .wrap(actix_web::middleware::Logger::default())
             .data(svc.clone())
@@ -34,7 +35,8 @@ pub mod <%= underscore(service.Name) %> {
         )
             .bind(address)?
             .run()
-            .await
+            .await?;
+        Ok(())
     }
 
 <%= for (method) in service.Unique { %>

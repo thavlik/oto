@@ -2,6 +2,7 @@
 pub use crate::types::*;
 use serde_json;
 use reqwest;
+use anyhow::{Error, Result};
 
 <%= for (service) in def.Services { %>
 pub struct <%= service.Name %>AsyncClient {
@@ -29,7 +30,7 @@ impl <%= service.Name %>AsyncClient {
     #[async_trait]
     impl <%= embedded.Name %> for <%= service.Name %>AsyncClient {
         <%= for (method) in embedded.Unique { %>
-        async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>, String> {
+        async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
             match self.client
                 .post(&self.<%= underscore(method.Name) %>_endpoint)
                 .json(&req)
@@ -42,14 +43,14 @@ impl <%= service.Name %>AsyncClient {
                         Ok(mut result) => match status {
                             reqwest::StatusCode::OK => Ok(result),
                             _ => match result.take_error() {
-                                Some(msg) => Err(msg),
-                                None => Err(format!("status code {}", status))
+                                Some(msg) => Err(Error::msg(msg)),
+                                None => Err(Error::msg(format!("status code {}", status)))
                             }
                         },
-                        Err(e) => Err(format!("{:?}", e))
+                        Err(e) => Err(Error::msg(format!("{:?}", e)))
                     }
                 },
-                Err(e) => Err(format!("{:?}", e))
+                Err(e) => Err(Error::msg(format!("{:?}", e)))
             }
         }<% } %>
     }
@@ -59,7 +60,7 @@ impl <%= service.Name %>AsyncClient {
 #[async_trait]
 impl <%= service.Name %> for <%= service.Name %>AsyncClient {
     <%= for (method) in service.Unique { %>
-    async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>, String> {
+    async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
         match self.client
             .post(&self.<%= underscore(method.Name) %>_endpoint)
             .json(&req)
@@ -72,14 +73,14 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
                     Ok(mut result) => match status {
                         reqwest::StatusCode::OK => Ok(result),
                         _ => match result.take_error() {
-                            Some(msg) => Err(msg),
-                            None => Err(format!("status code {}", status))
+                            Some(msg) => Err(Error::msg(msg)),
+                            None => Err(Error::msg(format!("status code {}", status)))
                         }
                     },
-                    Err(e) => Err(format!("{:?}", e))
+                    Err(e) => Err(Error::msg(format!("{:?}", e)))
                 }
             },
-            Err(e) => Err(format!("{:?}", e))
+            Err(e) => Err(Error::msg(format!("{:?}", e)))
         }
     }
     <% } %>
