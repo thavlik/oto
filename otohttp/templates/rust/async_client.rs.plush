@@ -7,8 +7,8 @@ use anyhow::{Error, Result};
 
 <%= for (service) in def.Services { %>
 pub struct <%= service.Name %>AsyncClient {
+    pub timeout: Duration,
     client: reqwest::Client,
-    default_timeout: Duration,
     <%= for (method) in service.Methods { %>
     <%= underscore(method.Name) %>_endpoint: String,
     <% } %>
@@ -21,7 +21,7 @@ impl <%= service.Name %>AsyncClient {
         <% } %>
         <%= service.Name %>AsyncClient{
             client: reqwest::Client::new(),
-            default_timeout: Duration::from_secs(15),
+            timeout: Duration::from_secs(15),
             <%= for (method) in service.Methods { %>
             <%= underscore(method.Name) %>_endpoint,
             <% } %>
@@ -33,10 +33,10 @@ impl <%= service.Name %>AsyncClient {
     #[async_trait]
     impl <%= embedded.Name %> for <%= service.Name %>AsyncClient {
         <%= for (method) in embedded.Unique { %>
-        async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>, timeout: Option<Duration>) -> Result<<%= method.OutputObject.TypeName %>> {
+        async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
             match self.client
                 .post(&self.<%= underscore(method.Name) %>_endpoint)
-                .timeout(timeout.unwrap_or(self.default_timeout))
+                .timeout(self.timeout)
                 .json(&req)
                 .send()
                 .await
@@ -67,7 +67,7 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
     async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>, timeout: Option<Duration>) -> Result<<%= method.OutputObject.TypeName %>> {
         match self.client
             .post(&self.<%= underscore(method.Name) %>_endpoint)
-            .timeout(timeout.unwrap_or(self.default_timeout))
+            .timeout(self.timeout)
             .json(&req)
             .send()
             .await
