@@ -64,7 +64,7 @@ impl <%= service.Name %>AsyncClient {
 #[async_trait]
 impl <%= service.Name %> for <%= service.Name %>AsyncClient {
     <%= for (method) in service.Unique { %>
-    async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>, timeout: Option<Duration>) -> Result<<%= method.OutputObject.TypeName %>> {
+    async fn <%= underscore(method.Name) %>(&self, req: <%= method.InputObject.TypeName %>) -> Result<<%= method.OutputObject.TypeName %>> {
         match self.client
             .post(&self.<%= underscore(method.Name) %>_endpoint)
             .timeout(self.timeout)
