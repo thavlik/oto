@@ -63,7 +63,7 @@ func (c *<%= camelize_down(service.Name) %>Client) <%= method.Name %>(ctx contex
 		if resp.StatusCode == 500 {
 			return nil, errors.New(string(body))
 		}
-		return nil, fmt.Errorf("%d: %s", resp.StatusCode, response.Error)
+		return nil, fmt.Errorf("%d: %s", resp.StatusCode, string(body))
 	}
 	response := &<%= method.OutputObject.TypeName %>{}
 	if err := json.Unmarshal(body, response); err != nil {
