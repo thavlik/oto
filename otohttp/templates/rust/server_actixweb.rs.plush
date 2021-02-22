@@ -3,7 +3,8 @@ use actix_web;
 use anyhow::Result;
 
 fn error_json<T: std::string::ToString>(e: T) -> String {
-    format!("{{\"error\":\"{}\"}}", e.to_string())
+    //format!("{{\"error\":\"{}\"}}", e.to_string())
+    e.to_string()
 }
 
 <%= for (service) in def.Services { %>
