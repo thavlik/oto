@@ -4,6 +4,7 @@ package <%= def.PackageName %>
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 
