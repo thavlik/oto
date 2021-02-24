@@ -50,8 +50,8 @@ impl <%= service.Name %>AsyncClient {
                         },
                         _ => {
                             let text = match resp.text().await {
-                                Ok(text) => text.trim_end(),
-                                Err(e) => "(error message unavailable)"
+                                Ok(text) => String::from(text.trim_end()),
+                                Err(e) => String::from("(error message unavailable)"),
                             };
                             if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
                                 Err(Error::msg(text))
@@ -88,8 +88,8 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
                         },
                         _ => {
                             let text = match resp.text().await {
-                                Ok(text) => text.trim_end(),
-                                Err(e) => "(error message unavailable)"
+                                Ok(text) => String::from(text.trim_end()),
+                                Err(e) => String::from("(error message unavailable)"),
                             };
                             if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
                                 Err(Error::msg(text))
