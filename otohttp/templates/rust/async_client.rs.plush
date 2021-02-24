@@ -56,7 +56,7 @@ impl <%= service.Name %>AsyncClient {
                         },
                         _ => {
                             let text = resp.text().await.expect("failed to unwrap resp.text");
-                            if status == reqwest::StatusCode::InternalServerError {
+                            if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
                                 Err(Error::msg(text))
                             } else {
                                 Err(Error::msg(format!("status code {}: {}", status, text)))
@@ -81,22 +81,32 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
             .json(&req)
             .send()
             .await
-        {
-            Ok(resp) => {
-                let status = resp.status();
-                match resp.json().await {
-                    Ok(mut result) => match status {
-                        reqwest::StatusCode::OK => Ok(result),
-                        _ => match result.take_error() {
-                            Some(msg) => Err(Error::msg(msg)),
-                            None => Err(Error::msg(format!("status code {}", status)))
+            {
+                Ok(resp) => {
+                    let status = resp.status();
+                    match resp.status() {
+                        reqwest::StatusCode::OK => match resp.json().await {
+                            Ok(mut result) => match status {
+                                reqwest::StatusCode::OK => Ok(result),
+                                _ => match result.take_error() {
+                                    Some(msg) => Err(Error::msg(msg)),
+                                    None => Err(Error::msg(format!("status code {}", status)))
+                                }
+                            },
+                            Err(e) => Err(Error::msg(format!("{:?}", e)))
+                        },
+                        _ => {
+                            let text = resp.text().await.expect("failed to unwrap resp.text");
+                            if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
+                                Err(Error::msg(text))
+                            } else {
+                                Err(Error::msg(format!("status code {}: {}", status, text)))
+                            }
                         }
-                    },
-                    Err(e) => Err(Error::msg(format!("{:?}", e)))
-                }
-            },
-            Err(e) => Err(Error::msg(format!("{:?}", e)))
-        }
+                    }
+                },
+                Err(e) => Err(Error::msg(format!("{:?}", e)))
+            }
     }
     <% } %>
 }
