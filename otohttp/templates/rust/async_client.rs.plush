@@ -49,7 +49,10 @@ impl <%= service.Name %>AsyncClient {
                             Err(e) => Err(Error::msg(format!("{:?}", e)))
                         },
                         _ => {
-                            let text = resp.text().await.expect("failed to unwrap resp.text");
+                            let text = match resp.text().await {
+                                Ok(text) => text,
+                                Err(e) => "(error message unavailable)"
+                            };
                             if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
                                 Err(Error::msg(text))
                             } else {
@@ -84,7 +87,10 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
                             Err(e) => Err(Error::msg(format!("{:?}", e)))
                         },
                         _ => {
-                            let text = resp.text().await.expect("failed to unwrap resp.text");
+                            let text = match resp.text().await {
+                                Ok(text) => text,
+                                Err(e) => "(error message unavailable)"
+                            };
                             if status == reqwest::StatusCode::INTERNAL_SERVER_ERROR {
                                 Err(Error::msg(text))
                             } else {
