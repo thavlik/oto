@@ -45,13 +45,7 @@ impl <%= service.Name %>AsyncClient {
                     let status = resp.status();
                     match resp.status() {
                         reqwest::StatusCode::OK => match resp.json().await {
-                            Ok(mut result) => match status {
-                                reqwest::StatusCode::OK => Ok(result),
-                                _ => match result.take_error() {
-                                    Some(msg) => Err(Error::msg(msg)),
-                                    None => Err(Error::msg(format!("status code {}", status)))
-                                }
-                            },
+                            Ok(mut result) => Ok(result),
                             Err(e) => Err(Error::msg(format!("{:?}", e)))
                         },
                         _ => {
@@ -86,13 +80,7 @@ impl <%= service.Name %> for <%= service.Name %>AsyncClient {
                     let status = resp.status();
                     match resp.status() {
                         reqwest::StatusCode::OK => match resp.json().await {
-                            Ok(mut result) => match status {
-                                reqwest::StatusCode::OK => Ok(result),
-                                _ => match result.take_error() {
-                                    Some(msg) => Err(Error::msg(msg)),
-                                    None => Err(Error::msg(format!("status code {}", status)))
-                                }
-                            },
+                            Ok(mut result) => Ok(result),
                             Err(e) => Err(Error::msg(format!("{:?}", e)))
                         },
                         _ => {
