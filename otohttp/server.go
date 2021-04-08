@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Server handles oto requests.
@@ -57,6 +59,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.ServeHTTP(w, r)
+}
+
+func (s *Server) ListenMetrics(port int) <-chan error {
+	done := make(chan error, 1)
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		done <- http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+		close(done)
+	}()
+	return done
 }
 
 // Encode writes the response.
