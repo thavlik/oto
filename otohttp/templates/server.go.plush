@@ -6,11 +6,25 @@ import (
 	"context"
 	"log"
 	"net/http"
+	
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/pacedotdev/oto/otohttp"
 	<%= for (importPath, name) in def.Imports { %>
 	<%= name %> "<%= importPath %>"
 	<% } %>
+)
+
+var (
+<%= for (service) in def.Services { %>
+<%= for (method) in service.Methods { %>
+    <%= camelize_down(service.Name) %><%= method.Name %>Total = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "<%= underscore(service.Name) %>_<%= underscore(method.Name) %>_total",
+		Help: "Auto-generated metric incremented on every call to <%= service.Name %>.<%= method.Name %>",
+	})
+<% } %>
+<% } %>
 )
 
 <%= for (service) in def.Services { %>
@@ -35,6 +49,7 @@ func Register<%= service.Name %>(server *otohttp.Server, <%= camelize_down(servi
 	<% } %>}
 <%= for (method) in service.Methods { %>
 func (s *<%= camelize_down(service.Name) %>Server) handle<%= method.Name %>(w http.ResponseWriter, r *http.Request) {
+	<%= camelize_down(service.Name) %><%= method.Name %>Total.Inc()
 	var request <%= method.InputObject.TypeName %>
 	if err := otohttp.Decode(r, &request); err != nil {
 		s.server.OnErr(w, r, err)
